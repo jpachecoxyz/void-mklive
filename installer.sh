@@ -1410,6 +1410,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
 
     # Copy /etc/skel files for root.
     cp $TARGETDIR/etc/skel/.[bix]* $TARGETDIR/root
+    chown root:root $TARGETDIR/etc/doas.conf
 
     NETWORK_DONE="$(get_option NETWORK)"
     # network settings for target

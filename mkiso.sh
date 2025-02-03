@@ -90,7 +90,7 @@ setup_pipewire() {
 build_variant() {
     variant="$1"
     shift
-    IMG=void-live-${ARCH}-${DATE}-${variant}.iso
+    IMG=void-jpachecoxyz.iso
 
     # el-cheapo installer is unsupported on arm because arm doesn't install a kernel by default
     # and to work around that would add too much complexity to it
@@ -124,11 +124,10 @@ build_variant() {
     esac
 
     A11Y_PKGS="espeakup void-live-audio brltty"
-    PKGS="dialog cryptsetup lvm2 mdadm void-docs-browse xtools-minimal xmirror chrony tmux $A11Y_PKGS $GRUB_PKGS"
+    PKGS="dialog cryptsetup lvm2 mdadm void-docs-browse yazi $A11Y_PKGS $GRUB_PKGS"
     FONTS="font-misc-misc terminus-font dejavu-fonts-ttf"
-    WAYLAND_PKGS="$GFX_WL_PKGS $FONTS orca"
-    XORG_PKGS="$GFX_PKGS $FONTS xorg-minimal xorg-input-drivers setxkbmap xauth orca"
-    SERVICES="sshd chronyd"
+    WAYLAND_PKGS="$GFX_WL_PKGS $FONTS"
+    SERVICES="sshd"
 
     LIGHTDM_SESSION=''
 
