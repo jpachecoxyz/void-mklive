@@ -6,8 +6,6 @@
 
 doas xbps-install -Suy \
     base-minimal \
-    NetworkManager \
-    Waybar \
     bash \
     bat \
     bc \
@@ -20,7 +18,6 @@ doas xbps-install -Suy \
     direnv \
     dracut \
     e2fsprogs \
-    elogind \
     emacs-pgtk \
     enchant2-devel \
     ethtool \
@@ -62,6 +59,7 @@ doas xbps-install -Suy \
     neovim \
     nodejs \
     noto-fonts-emoji \
+    NetworkManager \
     imv \
     opendoas \
     openssh \
@@ -86,6 +84,7 @@ doas xbps-install -Suy \
     usbutils \
     util-linux \
     vim \
+    Waybar \
     wf-recorder \
     xfsprogs \
     xrdb \
@@ -94,6 +93,8 @@ doas xbps-install -Suy \
     yt-dlp \
     zathura-pdf-poppler \
     zsh
+
+doas ln -s /usr/bin/doas /usr/bin/sudo
 
 # Determine whether to use doas or sudo
 if command -v doas >/dev/null 2>&1; then
@@ -106,7 +107,7 @@ else
 fi
 
 # Install required packages
-$ELEVATE xbps-install -Suy dbus seatd polkit elogind mesa-dri foot tofi
+$ELEVATE xbps-install -Suy dbus seatd polkit mesa-dri foot tofi
 
 # Ensure the ~/.local/src/ directory exists
 cd $HOME

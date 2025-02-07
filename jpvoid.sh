@@ -6,8 +6,8 @@
 
 doas ./mkiso.sh -- \
     -I includedir \
-    -o ~/Downloads/void-jpachecoxyz.iso \
+    -o ./void-jpachecoxyz.iso \
     -T "VoidJP" \
-    -p "NetworkManager opendoas" \
+    -p "NetworkManager opendoas git stow" \
     -g "sudo" \
     -v "linux5.10"
