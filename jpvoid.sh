@@ -9,5 +9,5 @@ doas ./mkiso.sh -- \
     -o ./void-jpachecoxyz.iso \
     -T "VoidJP" \
     -p "NetworkManager opendoas git stow" \
-    -g "sudo" \
+    -g "sudo dhcpcd base-system" \
     -v "linux5.10"

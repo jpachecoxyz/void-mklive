@@ -9,18 +9,15 @@ doas xbps-install -Suy \
     bash \
     bat \
     bc \
-    bgs \
     bluez \
     brightnessctl \
     curl \
     dejavu-fonts-ttf \
-    dhcpcd \
     direnv \
     dracut \
     e2fsprogs \
     emacs-pgtk \
     enchant2-devel \
-    ethtool \
     eudev \
     eza \
     fastfetch \
@@ -42,7 +39,6 @@ doas xbps-install -Suy \
     iputils \
     jq \
     psmisc \
-    kbd \
     kmod \
     lazygit \
     less \
@@ -79,7 +75,6 @@ doas xbps-install -Suy \
     tectonic \
     tofi \
     tomb \
-    traceroute \
     unzip \
     usbutils \
     util-linux \

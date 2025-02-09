@@ -1234,7 +1234,7 @@ install_packages() {
         fi
     fi
 
-    _syspkg="base-system"
+    _syspkg="base-minimal"
 
     mkdir -p $TARGETDIR/var/db/xbps/keys $TARGETDIR/usr/share
     cp -a /usr/share/xbps.d $TARGETDIR/usr/share/
