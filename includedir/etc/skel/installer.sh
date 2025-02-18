@@ -2,146 +2,76 @@
 
 # Created By: Javier Pacheco - jpacheco@cock.li
 # Created On: 28/01/25
-# Project: Void linux custom packages
+# Project: Void linux custom packages post-installation
 
-doas xbps-install -Suy \
-    base-minimal \
-    bash \
-    bat \
-    bc \
-    bluez \
-    brightnessctl \
-    curl \
-    dejavu-fonts-ttf \
-    direnv \
-    dracut \
-    e2fsprogs \
-    emacs-pgtk \
-    enchant2-devel \
-    eudev \
-    eza \
-    fastfetch \
-    ffmpeg \
-    file \
-    firefox \
-    font-ibm-plex-otf \
-    foot \
-    fzf \
-    gcc \
-    git \
-    grim \
-    gvfs \
-    htop \
-    hugo \
-    hunspell \
-    hunspell-devel \
-    iproute2 \
-    iputils \
-    jq \
-    psmisc \
-    kmod \
-    lazygit \
-    less \
-    libnotify \
-    libnotify-devel \
-    linux-firmware \
-    linux-firmware-network \
-    linux5.10 \
-    mako \
-    man-pages \
-    mesa-dri \
-    mpv \
-    ncurses \
-    neovim \
-    nodejs \
-    noto-fonts-emoji \
-    NetworkManager \
-    imv \
-    opendoas \
-    openssh \
-    os-prober \
-    p7zip \
-    pciutils \
-    polkit \
-    procps-ng \
-    pulseaudio \
-    python3-pipx \
-    ripgrep \
-    seatd \
-    slurp \
-    stow \
-    swappy \
-    swww \
-    tectonic \
-    tofi \
-    tomb \
-    unzip \
-    usbutils \
-    util-linux \
-    vim \
-    Waybar \
-    wf-recorder \
-    xfsprogs \
-    xrdb \
-    xz \
-    yazi \
-    yt-dlp \
-    zathura-pdf-poppler \
-    zsh
+set -e  # Exit on error
+set -o pipefail  # Exit if any command in a pipeline fails
 
-doas ln -s /usr/bin/doas /usr/bin/sudo
+PACKAGE_LIST="packages.txt"
+LOG_FILE="/tmp/install_script.log"
 
-# Determine whether to use doas or sudo
-if command -v doas >/dev/null 2>&1; then
-    ELEVATE="doas"
-elif command -v sudo >/dev/null 2>&1; then
-    ELEVATE="sudo"
-else
-    echo "Neither 'doas' nor 'sudo' is available. Please install one of them to continue."
+# Function to log and display messages
+log() {
+    echo -e "$1" | tee -a "$LOG_FILE"
+}
+
+# Function to handle errors
+error_exit() {
+    log "❌ Error: $1"
     exit 1
+}
+
+# Check for required tools
+command -v doas >/dev/null 2>&1 || error_exit "doas is not installed! Please install it first."
+
+# Check if the package list file exists
+[[ -f "$PACKAGE_LIST" ]] || error_exit "$PACKAGE_LIST not found!"
+
+log "📦 Starting package installation..."
+
+# Read and install packages
+while IFS= read -r package; do
+    [[ -z "$package" || "$package" =~ ^# ]] && continue  # Skip empty and commented lines
+
+    log "➡ Installing: $package"
+    doas xbps-install -Suy "$package" || error_exit "Failed to install $package"
+done < "$PACKAGE_LIST"
+
+# Symlink doas as sudo if not already linked
+if [[ ! -L "/usr/bin/sudo" ]]; then
+    log "🔗 Creating symlink: doas -> sudo"
+    doas ln -s /usr/bin/doas /usr/bin/sudo || error_exit "Failed to create symlink for sudo"
 fi
 
-# Install required packages
-$ELEVATE xbps-install -Suy dbus seatd polkit mesa-dri foot tofi
+# Install required system packages
+REQUIRED_PACKAGES="dbus seatd polkit mesa-dri foot tofi"
+log "📦 Installing required packages: $REQUIRED_PACKAGES"
+doas xbps-install -Suy $REQUIRED_PACKAGES || error_exit "Failed to install required packages"
 
-# Ensure the ~/.local/src/ directory exists
-cd $HOME
-[ -d "$HOME/.local/src/" ] && echo "~/.local/src/ folder exists in the system." || mkdir -p "$HOME/.local/src/"
-cd "$HOME/.local/src"
+# Install Hyprland
+HYPRLAND_CONF="/etc/xbps.d/hyprland-void.conf"
+if [[ ! -f "$HYPRLAND_CONF" ]]; then
+    log "📝 Adding Hyprland repository"
+    echo "repository=https://raw.githubusercontent.com/Makrennel/hyprland-void/repository-x86_64-musl" | doas tee "$HYPRLAND_CONF" > /dev/null
+fi
 
-# Clone necessary repositories
-git clone https://github.com/void-linux/void-packages --depth 1
-git clone https://github.com/Makrennel/hyprland-void --depth 1
-
-# Prepare the build environment
-cd void-packages
-./xbps-src binary-bootstrap
-
-# Copy files from hyprland-void
-cd ../hyprland-void
-cat common/shlibs >> ../void-packages/common/shlibs
-cp -r srcpkgs/* ../void-packages/srcpkgs
-
-# Build Hyprland and related packages
-cd ../void-packages
-./xbps-src pkg hyprland
-./xbps-src pkg xdg-desktop-portal-hyprland
-./xbps-src pkg hyprland-protocols
-
-# Install the built packages
-$ELEVATE xbps-install -y -R hostdir/binpkgs hyprland
-$ELEVATE xbps-install -y -R hostdir/binpkgs hyprland-protocols
-$ELEVATE xbps-install -y -R hostdir/binpkgs xdg-desktop-portal-hyprland
+log "🌟 Installing Hyprland and dependencies"
+doas xbps-install -Suy hyprland hyprland-protocols xdg-desktop-portal-hyprland || error_exit "Failed to install Hyprland"
 
 # Enable necessary services
-$ELEVATE ln -s /etc/sv/dbus /var/service
-$ELEVATE ln -s /etc/sv/polkitd /var/service
-$ELEVATE ln -s /etc/sv/seatd /var/service
+SERVICES=("dbus" "polkitd" "seatd" "bluetoothd" "sshd" "libvirt" "virtlockd" "virtlogd")
+for service in "${SERVICES[@]}"; do
+    SERVICE_PATH="/var/service/$service"
+    if [[ ! -L "$SERVICE_PATH" ]]; then
+        log "🔧 Enabling service: $service"
+        doas ln -s "/etc/sv/$service" "$SERVICE_PATH" || error_exit "Failed to enable $service"
+    fi
+done
 
-# Add the user to the _seatd group
-$ELEVATE usermod -aG _seatd "$USER"
+# Add user to _seatd group
+log "👤 Adding $USER to _seatd group"
+doas usermod -aG _seatd "$USER" || error_exit "Failed to add $USER to _seatd"
+doas usermod -aG libvirt "$USER" || error_exit "Failed to add $USER to libvirt"
+doas usermod -aG kvm "$USER" || error_exit "Failed to add $USER to kvm"
 
-# Clean up the cloned repositories
-rm -rf "$HOME/.local/src/void-packages"
-rm -rf "$HOME/.local/src/hyprland-void"
-echo "Folders have been removed from the system."
+log "✅ Installation completed successfully!"

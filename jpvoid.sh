@@ -10,4 +10,4 @@ doas ./mkiso.sh -- \
     -T "VoidJP" \
     -p "NetworkManager opendoas git stow" \
     -g "sudo dhcpcd base-system" \
-    -v "linux5.10"
+    -v "linux6.10"
