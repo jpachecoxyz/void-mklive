@@ -48,7 +48,6 @@ libnotify-devel
 libvirt
 linux-firmware
 linux-firmware-network
-linux5.10
 mako
 man-pages
 mesa-dri

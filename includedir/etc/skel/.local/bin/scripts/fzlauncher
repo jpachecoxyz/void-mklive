@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Created By: Javier Pacheco - javier@jpacheco.xyz
+# Based on the script of wef: https://gitlab.com/wef/dotfiles/-/blob/master/bin/fzf-launcher
+# Created On: 05/10/24
+# Project: Launcher fzf tool
+# Dependencies: fzf & gtk3-x11: gtk-launch
+
+export TIME_STAMP="20241004.180308"
+# shellcheck disable=SC2034
+
+PROG=$( basename "$0" )
+
+locations=( "$HOME/.local/share/applications" "$HOME/.nix-profile/share/applications/" )
+
+# shellcheck disable=SC2016
+selected_app=$(
+    find "${locations[@]}" -name '*.desktop' |
+    while read -r desktop; do
+        name=${desktop##*/} # remove directory
+        name=${name%.*}     # remove . suffix
+        name=${name##*.}    # remove . prefixes
+        echo "$name"
+    done |
+    fzf -i --exact --reverse --height 15 --ansi \
+        --bind "home:first" --bind "end:last" \
+        --prompt "Launch: " 
+            )
+
+echo "$PROG: $(date): selected app='$selected_app'" >> ~/.cache/fzf-launcher.log
+if [[ "$selected_app" ]]; then
+    # $selected_app is a fully qualified filename of a .desktop file
+    app="${selected_app##*/}" # basename
+    cd /
+    setsid gtk-launch "$app" </dev/null &>/dev/null
+fi
+
+# Local Variables:
+# mode: shell-script
+# time-stamp-pattern: "4/TIME_STAMP=\"%:y%02m%02d.%02H%02M%02S\""
+# eval: (add-hook 'before-save-hook 'time-stamp)
+# End:

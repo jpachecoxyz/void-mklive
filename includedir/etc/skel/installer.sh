@@ -49,7 +49,7 @@ log "📦 Installing required packages: $REQUIRED_PACKAGES"
 doas xbps-install -Suy $REQUIRED_PACKAGES || error_exit "Failed to install required packages"
 
 # Install Hyprland
-HYPRLAND_CONF="/etc/xbps.d/hyprland-void.conf"
+HYPRLAND_CONF="/etc/xbps.d/hyprland-packages.conf"
 if [[ ! -f "$HYPRLAND_CONF" ]]; then
     log "📝 Adding Hyprland repository"
     echo "repository=https://raw.githubusercontent.com/Makrennel/hyprland-void/repository-x86_64-musl" | doas tee "$HYPRLAND_CONF" > /dev/null

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Created By: Javier Pacheco - jpacheco@cock.li
+# Created On: 13/04/24
+# Project: toggle animations in hyprland
+
+HYPRANIM=$(hyprctl getoption animations:enabled | awk 'NR==1{print $2}')
+if [ "$HYPRANIM" = 0 ] ; then
+    hyprctl --batch "\
+        keyword animations:enabled 1"
+    # hyprctl notify 5 2000 "rgb(458588)" "fontsize:15  Animations enabled"
+    notify-send "Info" "Animations enabled"
+    else
+    hyprctl --batch "\
+        keyword animations:enabled 0"
+    # hyprctl notify 5 2000 "rgb(458588)" "fontsize:15  Animations disabled"
+    notify-send "Info" "Animations disabled"
+    exit
+fi
+hyprctl reload
