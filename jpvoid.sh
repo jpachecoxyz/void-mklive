@@ -6,11 +6,12 @@
 
 doas ./mkiso.sh -- \
     -a "x86_64-musl" \
+    -C "live.shell=/bin/zsh" \
+    -g "sudo dhcpcd base-system" \
     -I includedir \
     -o ./void-jpachecoxyz.iso \
-    -T "VoidJP" \
-    -p "NetworkManager opendoas git stow zsh Hyprland wayland" \
+    -p "NetworkManager opendoas git stow zsh hyprland hyprland-protocols xdg-desktop-portal-hyprland wayland Waybar fastfetch bat tofi foot seatd mesa-dri eza wbg" \
     -r "https://raw.githubusercontent.com/Makrennel/hyprland-void/repository-x86_64-musl" \
-
-    -g "sudo dhcpcd base-system" \
+    -S "seatd" \
+    -T "VoidJP" \
     -v "linux6.10"

@@ -107,7 +107,7 @@ VAI_configure_rc_conf() {
 }
 
 VAI_add_user() {
-    chroot "${target}" useradd -m -s /bin/bash -U -G wheel,users,audio,video,cdrom,input "${username}"
+    chroot "${target}" useradd -m -s /bin/bash -U -G wheel,users,audio,video,cdrom,input,_seatd "${username}"
     if [ -z "${password}" ] ; then
         chroot "${target}" passwd "${username}"
     else
